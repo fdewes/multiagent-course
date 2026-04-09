@@ -4,6 +4,9 @@ Agentic RAG: the agent decides WHEN and HOW to retrieve.
 """
 import sys
 sys.path.insert(0, "..")
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import get_llm, get_embeddings
 from langchain_core.tools import tool
 from langchain_core.documents import Document
@@ -85,7 +88,7 @@ def retrieve_documents(query: str, k: int = 3) -> List[Document]:
         score = sum(1 for w in query_words if w in doc.page_content.lower())
         if score > 0:
             scored.append((score, doc))
-    scored.sort(reverse=True)
+    scored.sort(key=lambda x: x[0], reverse=True)
     return [doc for _, doc in scored[:k]]
 
 
@@ -139,36 +142,17 @@ def calculator(expression: str) -> str:
         return str(eval(expression))
     return "Invalid"
 
-from langchain.agents import create_react_agent, AgentExecutor
+from langchain.agents import create_agent
 from langchain_core.prompts import PromptTemplate
 
 tools = [knowledge_base_search, calculator]
 agent_llm = get_llm(temperature=0.0)
 
-PROMPT = """You are a helpful assistant with access to a knowledge base.
-Use the knowledge_base_search tool to look up factual information.
+# Use the modern langgraph-based agent
+agent = create_agent(agent_llm, tools)
 
-Tools:
-{tools}
-
-Format:
-Question: {input}
-Thought: Think about what you need
-Action: tool_name
-Action Input: input
-Observation: result
-...
-Final Answer: answer
-
-{agent_scratchpad}"""
-
-prompt = PromptTemplate.from_template(PROMPT)
-agent = create_react_agent(agent_llm, tools, prompt)
-executor = AgentExecutor(agent=agent, tools=tools, verbose=True,
-                         max_iterations=4, handle_parsing_errors=True)
-
-result = executor.invoke({"input": "What are the benefits of RAG and how does it relate to vector databases?"})
-print(f"\nAnswer: {result['output']}")
+result = agent.invoke({"messages": [("user", "What are the key features of LangGraph?")]})
+print(f"Answer: {result['messages'][-1].content}")
 
 
 # ── 3. Corrective RAG (evaluate and retry) ────────────────────────────────────

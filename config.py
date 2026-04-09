@@ -1,6 +1,6 @@
 """Shared config used by all days."""
-OLLAMA_BASE_URL = "http://10.10.1.249:11434"
-MODEL = "qwen2.5:27b"
+OLLAMA_BASE_URL = "http://10.10.1.7:11434"
+MODEL = "qwen3.5:9b"
 
 # LangChain / LangGraph helper
 def get_llm(temperature: float = 0.0, **kwargs):

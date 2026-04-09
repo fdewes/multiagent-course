@@ -3,6 +3,9 @@ Day 4 — Memory systems: short-term, episodic, semantic, entity.
 """
 import sys
 sys.path.insert(0, "..")
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import get_llm
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -143,7 +146,7 @@ def retrieve_relevant_episodes(query: str, top_k: int = 3) -> list:
         score = sum(1 for w in query_words if w in text)
         if score > 0:
             scored.append((score, ep))
-    scored.sort(reverse=True)
+    scored.sort(key=lambda x: x[0], reverse=True)
     return [ep for _, ep in scored[:top_k]]
 
 # Simulate saving episodes

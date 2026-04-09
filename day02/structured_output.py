@@ -3,6 +3,9 @@ Day 2 — Structured output patterns: the foundation of reliable agents.
 """
 import sys
 sys.path.insert(0, "..")
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import get_llm
 from pydantic import BaseModel, Field
 from typing import List, Literal

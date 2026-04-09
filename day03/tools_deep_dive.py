@@ -3,6 +3,9 @@ Day 3 — Tool design, schema inspection, dynamic tool loading, error handling.
 """
 import sys
 sys.path.insert(0, "..")
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import get_llm
 from langchain_core.tools import tool, StructuredTool
 from langchain_core.utils.function_calling import convert_to_openai_function
@@ -86,35 +89,17 @@ for t in all_tools:
 print("\n" + "=" * 60)
 print("Agent with tool use")
 
-from langchain.agents import create_react_agent, AgentExecutor
+from langchain.agents import create_agent as create_react_agent_new
 from langchain_core.prompts import PromptTemplate
 
 tools = [get_weather, web_search, db_tool]
 llm = get_llm(temperature=0.0)
 
-PROMPT = """Answer the question using the available tools.
+# Use the modern langgraph approach
+agent = create_react_agent_new(llm, tools)
 
-Tools:
-{tools}
-
-Use format:
-Question: {input}
-Thought: ...
-Action: tool_name
-Action Input: input
-Observation: result
-...
-Final Answer: answer
-
-{agent_scratchpad}"""
-
-prompt = PromptTemplate.from_template(PROMPT)
-agent = create_react_agent(llm, tools, prompt)
-executor = AgentExecutor(agent=agent, tools=tools, verbose=True,
-                         max_iterations=4, handle_parsing_errors=True)
-
-result = executor.invoke({"input": "What is the weather in Berlin in celsius?"})
-print(f"\nAnswer: {result['output']}")
+result = agent.invoke({"messages": [("user", "What is the weather in Berlin in celsius?")]})
+print(f"\nAnswer: {result['messages'][-1].content}")
 
 # ── 7. Dynamic tool retrieval (for large toolsets) ────────────────────────────
 print("\n" + "=" * 60)

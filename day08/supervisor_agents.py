@@ -4,6 +4,9 @@ The supervisor pattern is the most common production multi-agent design.
 """
 import sys
 sys.path.insert(0, "..")
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import get_llm
 from typing import TypedDict, Annotated, List, Literal
 from langchain_core.messages import HumanMessage, AIMessage, BaseMessage, SystemMessage
